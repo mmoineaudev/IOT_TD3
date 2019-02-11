@@ -6,6 +6,8 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <Wire.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 //les branchements
 #define LED_PIN 23
@@ -56,7 +58,7 @@ void connect_wifi() {
 
 /*=============== SETUP =====================*/
 void setup() {
-  pinMode(ledPin, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
 
   Serial.begin(9600);
   connect_wifi();

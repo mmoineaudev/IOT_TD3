@@ -105,6 +105,8 @@ On ajoute au pom.xml :
 
 Il manque quelques petites choses pour faire le lien avec vos capteurs/actionneurs :
 
+On modifie le fichier MQTT-full
+
 - les fonctions set_LED() et get_Temperature() sont creuses
 
 ## La manipulation avec Mosquitto
