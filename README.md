@@ -74,3 +74,41 @@ On utilise :
 On l'ajoute aux librairies de l'IDE
 
 ## TODO : Expérimentation
+
+On va faire un client mqtt en java
+
+Sources :
+
+- http://www.eclipse.org/paho/clients/java/
+
+### Pull le repo avec maven
+
+On ajoute au pom.xml :
+
+```
+   <repositories>
+        <repository>
+            <id>Eclipse Paho Repo</id>
+            <url>https://repo.eclipse.org/content/repositories/paho-releases/</url>
+        </repository>
+    </repositories>
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.paho</groupId>
+            <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+    </dependencies>
+```
+
+## Code ESP32
+
+Il manque quelques petites choses pour faire le lien avec vos capteurs/actionneurs :
+
+- les fonctions set_LED() et get_Temperature() sont creuses
+
+## La manipulation avec Mosquitto
+
+## TODO : Use Case
+
+## TODO : finalisation
