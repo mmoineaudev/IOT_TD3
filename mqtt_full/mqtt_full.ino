@@ -1,13 +1,26 @@
 /*********
- Based on Rui Santos work :
- https://randomnerdtutorials.com/esp32-mqtt-publish-subscribe-arduino-ide/
- Modified by GM
+  Based on Rui Santos work :
+  https://randomnerdtutorials.com/esp32-mqtt-publish-subscribe-arduino-ide/
+  Modified by GM
 *********/
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <Wire.h>
 
-WiFiClient espClient;           // Wifi 
+//les branchements
+#define LED_PIN 23
+#define TEMP_PIN 19
+#define LIGTH_PIN 34
+
+//Les id de connexion
+const char* ssid = "NetworkComesWithFaith";
+const char *password = "0987654321";
+
+//la récupération de la température
+OneWire oneWire(TEMP_PIN);
+DallasTemperature tempSensor(&oneWire);
+
+WiFiClient espClient;           // Wifi
 PubSubClient client(espClient); // MQTT client
 
 /*===== MQTT broker/server and TOPICS ========*/
@@ -19,7 +32,6 @@ const char* mqtt_server = "192.168.1.113"; /* "broker.shiftr.io"; */
 /*============= GPIO ======================*/
 float temperature = 0;
 float light = 0;
-const int ledPin = 19; // LED Pin
 
 /*================ WIFI =======================*/
 void print_connection_status() {
@@ -31,13 +43,7 @@ void print_connection_status() {
 }
 
 void connect_wifi() {
-  const char* ssid = "HUAWEI-6EC2";
-  const char *password= "FGY9MLBL";
-  //const char* ssid = "HUAWEI-553A";
-  //const char *password = "QTM06RTT";
-  //const char* ssid = "mowgli";
-  //const char *password = "JWA9TNbf";
-  
+
   Serial.println("Connecting Wifi...");
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
@@ -49,22 +55,22 @@ void connect_wifi() {
 }
 
 /*=============== SETUP =====================*/
-void setup() {  
+void setup() {
   pinMode(ledPin, OUTPUT);
 
   Serial.begin(9600);
   connect_wifi();
-  
+
   client.setServer(mqtt_server, 1883);
   // set callback when publishes arrive for the subscribed topic
-  client.setCallback(mqtt_pubcallback); 
+  client.setCallback(mqtt_pubcallback);
 }
 
 /*============== CALLBACK ===================*/
-void mqtt_pubcallback(char* topic, byte* message, 
+void mqtt_pubcallback(char* topic, byte* message,
                       unsigned int length) {
   // Callback if a message is published on this topic.
-  
+
   Serial.print("Message arrived on topic: ");
   Serial.print(topic);
   Serial.print(". Message: ");
@@ -95,8 +101,8 @@ void mqtt_pubcallback(char* topic, byte* message,
   }
 }
 
-void set_LED(int v){
-  
+void set_LED(int v) {
+  digitalWrite(LED_PIN, v);
 }
 
 /*============= SUBSCRIBE =====================*/
@@ -118,15 +124,16 @@ void mqtt_mysubscribe(char *topic) {
   }
 }
 
-float get_Temperature(){
-  return 22.5;
+float get_Temperature() {
+  tempSensor.requestTemperaturesByIndex(0);
+  return tempSensor.getTempCByIndex(0);
 }
 
 /*================= LOOP ======================*/
 void loop() {
   int32_t period = 5000; // 5 sec
   /*--- subscribe to TOPIC_LED if not yet ! */
-  if (!client.connected()) { 
+  if (!client.connected()) {
     mqtt_mysubscribe((char *)(TOPIC_LED));
   }
 
@@ -140,6 +147,6 @@ void loop() {
   Serial.print("Published Temperature : "); Serial.println(tempString);
   // MQTT Publish
   client.publish(TOPIC_TEMP, tempString);
-   
+
   client.loop(); // Process MQTT ... une fois par loop()
 }
