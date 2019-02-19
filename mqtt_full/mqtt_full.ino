@@ -28,8 +28,18 @@ PubSubClient client(espClient); // MQTT client
 /*===== MQTT broker/server and TOPICS ========*/
 const char* mqtt_server = "192.168.1.113"; /* "broker.shiftr.io"; */
 
-#define TOPIC_TEMP "miage1/menez/sensors/temp"
-#define TOPIC_LED  "miage1/menez/sensors/led"
+
+/** Commandes shell
+sudo service mosquitto stop; sudo service mosquitto start
+mosquitto_sub -h localhost -t test miage1/menez/sensors/temp
+mosquitto_sub -h localhost -t test miage1/menez/sensors/led
+
+
+mosquitto_pub -h localhost -p 1883 -t channel -m "Le premier message"
+
+**/
+#define TOPIC_TEMP "miage1/menez/sensors/temp" 
+#define TOPIC_LED  "miage1/menez/sensors/led" 
 
 /*============= GPIO ======================*/
 float temperature = 0;
