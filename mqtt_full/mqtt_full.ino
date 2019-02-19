@@ -31,8 +31,9 @@ const char* mqtt_server = "192.168.1.113"; /* "broker.shiftr.io"; */
 
 /** Commandes shell
 sudo service mosquitto stop; sudo service mosquitto start
-mosquitto_sub -h localhost -t test miage1/menez/sensors/temp
-mosquitto_sub -h localhost -t test miage1/menez/sensors/led
+xterm -hold -e "mosquitto_sub -h localhost -t miage1/menez/sensors/temp" &
+xterm -hold -e "mosquitto_sub -h localhost -t miage1/menez/sensors/led" &
+xterm -hold -e "mosquitto_sub -h localhost -v -t \$SYS/#" &
 
 
 mosquitto_pub -h localhost -p 1883 -t channel -m "Le premier message"
