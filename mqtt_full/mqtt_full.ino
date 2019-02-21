@@ -26,7 +26,7 @@ WiFiClient espClient;           // Wifi
 PubSubClient client(espClient); // MQTT client
 
 /*===== MQTT broker/server and TOPICS ========*/
-const char* mqtt_server = "192.168.1.113"; /* "broker.shiftr.io"; */
+const char* mqtt_server = "192.168.43.169"; /* "broker.shiftr.io"; */
 
 
 /** Commandes shell

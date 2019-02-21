@@ -1,13 +1,11 @@
 package Sensors;
 
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+
 //permet d'agir sur un sensor via mqtt
-public class AbstractSensor {
+public class AbstractSensor implements IMqttMessageListener {
     //--
     protected String topic        = "miage1/menez/sensors/";
     protected String content      = "AbstractSensoris not meant to be used";
@@ -18,6 +16,10 @@ public class AbstractSensor {
     //--
     protected MqttClient client;
 
+    public void listen() throws MqttException {
+        client.subscribe(topic);
+    }
+
     public void connect() throws MqttException {
         MqttConnectOptions connOpts = new MqttConnectOptions();
         connOpts.setCleanSession(true);
@@ -26,7 +28,7 @@ public class AbstractSensor {
         client.connect(connOpts);
         System.out.println("Connected");
     }
-
+    //supposed to be called in messageArrived
     public void publish() throws MqttException {
         System.out.print("Publishing message: "+content+"... ");
         MqttMessage messageMqtt = new MqttMessage(content.getBytes());
@@ -39,5 +41,10 @@ public class AbstractSensor {
         client.disconnect();
         System.out.println("Disconnected");
         System.exit(0);
+    }
+
+
+    public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
+        System.out.println("messageArrived : "+s+"\n"+mqttMessage.toString());
     }
 }
