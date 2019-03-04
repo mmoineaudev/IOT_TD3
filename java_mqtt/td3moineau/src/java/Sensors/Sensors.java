@@ -5,7 +5,7 @@ import sun.management.Sensor;
 
 import java.util.HashMap;
 
-public class Sensors {
+public class Sensors implements Runnable{
     private HashMap<String, AbstractSensor> mapping;
     private boolean connected = false;
     public Sensors() {
@@ -16,8 +16,14 @@ public class Sensors {
         mapping.put(ID, sensor);
     }
     public void connect() throws MqttException {
-        for(String s : mapping.keySet())
-            mapping.get(s).connect();
+        for(String s : mapping.keySet()) {
+            try {
+                mapping.get(s).connect();
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }
     }
     public void disconnect() throws MqttException {
         for(String s : mapping.keySet())
@@ -27,24 +33,31 @@ public class Sensors {
         for(String s : mapping.keySet())
             mapping.get(s).listen();
     }
-    public void run() {
-        for (String s : mapping.keySet()) {
-                System.out.print("running "+s+"...");
-                run(mapping.get(s));
+    public void run(){
+        try {
+            this.addSensor("TEMP", new TempSensor());
+            this.addSensor("LIGHT", new LightSensor());
+            for (String s : mapping.keySet()) {
+                    System.out.print("running "+s+"...");
+                    if(!mapping.get(s).client.isConnected()) {
+                            mapping.get(s).connect();
+                    }
+                    run(mapping.get(s));
+            }
+        } catch (MqttException e) {
+            e.printStackTrace();//todo remettre l'ancien
+        }catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
     private void run(AbstractSensor aSensor) {
         try {
-            aSensor.listen();
-            //aSensor.publish();
-        } catch(
-                MqttException me) {
-            System.out.println("reason "+me.getReasonCode());
-            System.out.println("msg "+me.getMessage());
-            System.out.println("loc "+me.getLocalizedMessage());
-            System.out.println("cause "+me.getCause());
-            System.out.println("excep "+me);
-            me.printStackTrace();
+            Thread t = new Thread(aSensor);
+            t.run();
+        } catch(Exception e) {
+            e.printStackTrace();
+            System.exit(2);
         }
     }
 }

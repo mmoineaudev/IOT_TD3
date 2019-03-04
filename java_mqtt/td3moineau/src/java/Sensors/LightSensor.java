@@ -4,17 +4,16 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-public class LedSensor extends AbstractSensor implements SensorTrigger{
+public class LightSensor extends AbstractSensor implements SensorTrigger{
 
-    public LedSensor() throws MqttException {
+    public LightSensor() throws MqttException {
         super();
         this.client = new MqttClient(broker, clientId, persistence);
-
+        this.topic = super.topic+"light";
     }
 
     @Override
-    public void connect() throws MqttException {
-        this.topic = super.topic+"led";
+    public void connect() throws MqttException, InterruptedException {
         super.connect();
     }
 

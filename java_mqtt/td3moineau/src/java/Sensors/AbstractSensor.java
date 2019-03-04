@@ -5,7 +5,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 
 //permet d'agir sur un sensor via mqtt
-public class AbstractSensor implements IMqttMessageListener, SensorTrigger {
+public class AbstractSensor implements IMqttMessageListener, SensorTrigger, Runnable {
     //--
     protected String topic        = "miage1/menez/sensors/";
     protected String content      = "AbstractSensoris not meant to be used";
@@ -18,6 +18,7 @@ public class AbstractSensor implements IMqttMessageListener, SensorTrigger {
 
     public AbstractSensor() throws MqttException {
         client = null;
+
     }
 
     public void listen() throws MqttException {
@@ -25,22 +26,26 @@ public class AbstractSensor implements IMqttMessageListener, SensorTrigger {
             client.setTimeToWait(5000);
         }else{
             System.out.println("connection to topic error, retrying...");
-            client.connect();
-            client.subscribe(topic, this) ;
-            listen();
         }
     }
 
-    public void connect() throws MqttException {
-        MqttConnectOptions connOpts = new MqttConnectOptions();
-        connOpts.setAutomaticReconnect(true);
-        connOpts.setCleanSession(true);
-        connOpts.setConnectionTimeout(10);
-
-        System.out.print("Connecting to broker: "+broker + " on topic "+topic+"... ");
-        client.connect(connOpts);
-        System.out.println("Connected");
-        client.subscribe(topic, this) ;
+    public void connect() throws MqttException, InterruptedException {
+        if(!client.isConnected()) {
+            MqttConnectOptions connOpts = new MqttConnectOptions();
+            connOpts.setAutomaticReconnect(true);
+            connOpts.setCleanSession(true);
+            connOpts.setConnectionTimeout(10);
+            System.out.print("Connecting to broker: " + broker + " on topic " + topic + "... ");
+            try{
+                client.connect(connOpts);
+            }catch(Exception e){
+                System.out.println("retrying to connect to "+this.topic+" in 3 secs : "+e.getMessage());
+                connect();
+                return;
+            }
+            System.out.println("Connected");
+            client.subscribe(topic, this);
+        }
     }
     //supposed to be called in messageArrived
     public void publish() throws MqttException {
@@ -67,5 +72,19 @@ public class AbstractSensor implements IMqttMessageListener, SensorTrigger {
     //to be overridden
     public void triggered(MqttMessage value) {
         System.out.println(this.getClass().getSimpleName()+" cannot be triggered");
+    }
+
+    public void run() {
+        System.out.println(this.getClass().getSimpleName()+ "running !");
+        try {
+            connect();
+            while(true)
+                listen();
+        } catch (MqttException e) {
+            System.out.println("Exception : "+e.getMessage());
+            System.exit(0);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
