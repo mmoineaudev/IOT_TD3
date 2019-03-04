@@ -1,5 +1,7 @@
 package Sensors;
 
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+
 public interface SensorTrigger {
-    public void triggered(String value);
+    public void triggered(MqttMessage value);
 }

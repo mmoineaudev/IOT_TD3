@@ -1,12 +1,13 @@
 package Sensors;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
+import sun.management.Sensor;
 
 import java.util.HashMap;
 
 public class Sensors {
     private HashMap<String, AbstractSensor> mapping;
-
+    private boolean connected = false;
     public Sensors() {
         this.mapping = new HashMap<String, AbstractSensor>();
     }
@@ -26,14 +27,16 @@ public class Sensors {
         for(String s : mapping.keySet())
             mapping.get(s).listen();
     }
-
-    private void run(AbstractSensor aSensor) throws InterruptedException {
+    public void run() {
+        for (String s : mapping.keySet()) {
+                System.out.print("running "+s+"...");
+                run(mapping.get(s));
+        }
+    }
+    private void run(AbstractSensor aSensor) {
         try {
-            aSensor.connect();
             aSensor.listen();
-            aSensor.publish();
-            Thread.sleep(1000);
-            aSensor.disconnect();
+            //aSensor.publish();
         } catch(
                 MqttException me) {
             System.out.println("reason "+me.getReasonCode());

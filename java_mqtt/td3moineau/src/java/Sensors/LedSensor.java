@@ -1,12 +1,20 @@
 package Sensors;
 
+import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 public class LedSensor extends AbstractSensor implements SensorTrigger{
 
+    public LedSensor() throws MqttException {
+        super();
+        this.client = new MqttClient(broker, clientId, persistence);
+
+    }
+
     @Override
     public void connect() throws MqttException {
-        super.topic = super.topic+"led";
+        this.topic = super.topic+"led";
         super.connect();
     }
 
@@ -15,11 +23,12 @@ public class LedSensor extends AbstractSensor implements SensorTrigger{
         super.publish();
     }
 
-    public void triggered(String value) {
+    public void triggered(MqttMessage value) {
+        System.out.println("value = " + value);
         if(value!=null)
-            if(value=="ON"){
+            if(value.toString()=="ON"){
                 //TODO
-            }else if(value=="OFF"){
+            }else if(value.toString()=="OFF"){
                 //TODO
             }
     }

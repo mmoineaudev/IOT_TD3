@@ -26,7 +26,7 @@ WiFiClient espClient;           // Wifi
 PubSubClient client(espClient); // MQTT client
 
 /*===== MQTT broker/server and TOPICS ========*/
-const char* mqtt_server = "192.168.43.169"; /* "broker.shiftr.io"; */
+const char* mqtt_server = "192.168.43.169"; /* your ips */
 
 
 /** Commandes shell
@@ -141,25 +141,37 @@ float get_Temperature() {
   tempSensor.requestTemperaturesByIndex(0);
   return tempSensor.getTempCByIndex(0);
 }
+float get_Ligth() {
+  float value =  analogRead(LIGTH_PIN);
+  Serial.print("get_Ligth"); Serial.println(value);
+  return value;
+}
 
 /*================= LOOP ======================*/
 void loop() {
   int32_t period = 5000; // 5 sec
   /*--- subscribe to TOPIC_LED if not yet ! */
   if (!client.connected()) {
-    mqtt_mysubscribe((char *)(TOPIC_LED));
+    mqtt_mysubscribe((char *)(TOPIC_LED));//on communique sur le canal led  
   }
 
   /*--- Publish Temperature periodically   */
   delay(period);
-  temperature = get_Temperature();
+  float temperature = get_Temperature();
+  float ligth = get_Ligth();
   // Convert the value to a char array
   char tempString[8];
   dtostrf(temperature, 1, 2, tempString);
+
+  char tempLigth[8];
+  dtostrf(light, 1, 2, tempLigth);
   // Serial info
   Serial.print("Published Temperature : "); Serial.println(tempString);
+  Serial.print("Published Light : "); Serial.println(tempLigth);
+  
   // MQTT Publish
   client.publish(TOPIC_TEMP, tempString);
+  client.publish(TOPIC_LED, tempLigth);
 
   client.loop(); // Process MQTT ... une fois par loop()
 }
