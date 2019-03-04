@@ -22,7 +22,7 @@ public class AbstractSensor implements IMqttMessageListener, SensorTrigger {
 
     public void listen() throws MqttException {
         if(client.isConnected()) {
-            client.setTimeToWait(1000);
+            client.setTimeToWait(5000);
         }else{
             System.out.println("connection to topic error, retrying...");
             client.connect();

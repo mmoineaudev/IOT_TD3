@@ -41,10 +41,7 @@ mosquitto_pub -h localhost -p 1883 -t channel -m "Le premier message"
 **/
 #define TOPIC_TEMP "miage1/menez/sensors/temp" 
 #define TOPIC_LED  "miage1/menez/sensors/led" 
-
-/*============= GPIO ======================*/
-float temperature = 0;
-float light = 0;
+#define TOPIC_LIGHT  "miage1/menez/sensors/light" 
 
 /*================ WIFI =======================*/
 void print_connection_status() {
@@ -141,9 +138,9 @@ float get_Temperature() {
   tempSensor.requestTemperaturesByIndex(0);
   return tempSensor.getTempCByIndex(0);
 }
-float get_Ligth() {
-  float value =  analogRead(LIGTH_PIN);
-  Serial.print("get_Ligth"); Serial.println(value);
+float get_Light() {
+  int value =  analogRead(LIGTH_PIN);
+  Serial.print("get_Light"); Serial.println(value);
   return value;
 }
 
@@ -158,20 +155,20 @@ void loop() {
   /*--- Publish Temperature periodically   */
   delay(period);
   float temperature = get_Temperature();
-  float ligth = get_Ligth();
+  int ligth = get_Light();
   // Convert the value to a char array
   char tempString[8];
   dtostrf(temperature, 1, 2, tempString);
 
   char tempLigth[8];
-  dtostrf(light, 1, 2, tempLigth);
+  dtostrf(ligth, 1, 2, tempLigth);
   // Serial info
-  Serial.print("Published Temperature : "); Serial.println(tempString);
-  Serial.print("Published Light : "); Serial.println(tempLigth);
+  Serial.print("* Published Temperature : "); Serial.println(tempString);
+  Serial.print("* Published Light : "); Serial.println(tempLigth);
   
   // MQTT Publish
   client.publish(TOPIC_TEMP, tempString);
-  client.publish(TOPIC_LED, tempLigth);
+  client.publish(TOPIC_LIGHT, tempLigth);
 
   client.loop(); // Process MQTT ... une fois par loop()
 }
