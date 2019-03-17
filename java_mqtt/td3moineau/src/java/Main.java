@@ -7,8 +7,7 @@ public class Main {
     static int nbSecondsRunning = 30;
     public static void main(String[] args) throws MqttException, InterruptedException {
         Sensors sensors = new Sensors();
-        Thread t = new Thread(sensors);
-        t.run();
+        sensors.run();
 
 
     }

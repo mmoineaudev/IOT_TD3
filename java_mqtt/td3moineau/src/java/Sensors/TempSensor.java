@@ -4,11 +4,12 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-public class TempSensor extends AbstractSensor implements SensorTrigger{
-    public TempSensor() throws MqttException {
+public class TempSensor extends AbstractSensor {
+    public TempSensor() throws MqttException, InterruptedException {
         super();
         this.client = new MqttClient(broker, clientId, persistence);
         this.topic = super.topic+"temp";
+        this.content = "AbstractSensoris not meant to be used";
 
     }
 
@@ -19,22 +20,11 @@ public class TempSensor extends AbstractSensor implements SensorTrigger{
 
     @Override
     public void publish() throws MqttException {
-        super.publish();
+        //super.publish();
     }
 
-    public void triggered(MqttMessage value) {
-        if(value!=null) {
-            try{
-                double numericValue = Double.parseDouble(value.toString());
-            }catch (Exception e){
-                System.out.println("Skipping "+value+" : "+e.getMessage());
-                return;
-            }
-            if (Double.parseDouble(value.toString()) < 20) {//todo agir sur les seuils
-                System.out.println("La pièce a besoin de chauffage");
-            } else if (Double.parseDouble(value.toString()) >= 20) {
-                System.out.println("La pièce n'a pas besoin de chauffage");
-            }
-        }
+    @Override
+    public void messageArrived(String s, MqttMessage mqttMessage) {
+        super.messageArrived(s, mqttMessage);
     }
 }

@@ -5,7 +5,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 
 //permet d'agir sur un sensor via mqtt
-public class AbstractSensor implements IMqttMessageListener, SensorTrigger, Runnable {
+public class AbstractSensor implements IMqttMessageListener, Runnable {
     //--
     protected String topic        = "miage1/menez/sensors/";
     protected String content      = "AbstractSensoris not meant to be used";
@@ -16,17 +16,19 @@ public class AbstractSensor implements IMqttMessageListener, SensorTrigger, Runn
     //--
     protected MqttClient client;
 
-    public AbstractSensor() throws MqttException {
+    public AbstractSensor() throws MqttException, InterruptedException {
         client = null;
-
     }
 
-    public void listen() throws MqttException {
+    public void listen() throws MqttException, InterruptedException {
         if(client.isConnected()) {
-            client.setTimeToWait(5000);
+            System.out.println("listening on "+topic);
+
         }else{
-            System.out.println("connection to topic error, retrying...");
+            System.out.println("connection to topic error... retrying");
+            connect();
         }
+        Thread.sleep(Sensors.TIME_TO_WAIT);
     }
 
     public void connect() throws MqttException, InterruptedException {
@@ -47,6 +49,7 @@ public class AbstractSensor implements IMqttMessageListener, SensorTrigger, Runn
             client.subscribe(topic, this);
         }
     }
+
     //supposed to be called in messageArrived
     public void publish() throws MqttException {
         System.out.print("Publishing message: "+content+" to topic "+topic+"... ");
@@ -63,28 +66,17 @@ public class AbstractSensor implements IMqttMessageListener, SensorTrigger, Runn
     }
 
 
-    public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
-
-        System.out.println("messageArrived : "+mqttMessage.toString());
-        this.triggered(mqttMessage);
-    }
-
-    //to be overridden
-    public void triggered(MqttMessage value) {
-        System.out.println(this.getClass().getSimpleName()+" cannot be triggered");
+    public void messageArrived(String s, MqttMessage mqttMessage){
+        System.out.println("messageArrived on topic [\n"+this.topic+" : "+mqttMessage.toString()+"\n]");
     }
 
     public void run() {
         System.out.println(this.getClass().getSimpleName()+ "running !");
         try {
-            connect();
-            while(true)
-                listen();
-        } catch (MqttException e) {
-            System.out.println("Exception : "+e.getMessage());
-            System.exit(0);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            listen();
+        }catch (Exception e) {
+            System.out.println(e.getMessage());
         }
+
     }
 }

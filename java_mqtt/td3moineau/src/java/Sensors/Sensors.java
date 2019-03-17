@@ -3,9 +3,12 @@ package Sensors;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import sun.management.Sensor;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.*;
 
-public class Sensors implements Runnable{
+public class Sensors{
+    public static final long TIME_TO_WAIT = 1000;
     private HashMap<String, AbstractSensor> mapping;
     private boolean connected = false;
     public Sensors() {
@@ -15,49 +18,37 @@ public class Sensors implements Runnable{
     public void addSensor(String ID, AbstractSensor sensor){
         mapping.put(ID, sensor);
     }
-    public void connect() throws MqttException {
-        for(String s : mapping.keySet()) {
-            try {
-                mapping.get(s).connect();
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.exit(1);
-            }
-        }
-    }
-    public void disconnect() throws MqttException {
-        for(String s : mapping.keySet())
-            mapping.get(s).disconnect();
-    }
-    public void listen() throws MqttException {
-        for(String s : mapping.keySet())
-            mapping.get(s).listen();
-    }
+
     public void run(){
         try {
             this.addSensor("TEMP", new TempSensor());
             this.addSensor("LIGHT", new LightSensor());
-            for (String s : mapping.keySet()) {
-                    System.out.print("running "+s+"...");
-                    if(!mapping.get(s).client.isConnected()) {
-                            mapping.get(s).connect();
-                    }
-                    run(mapping.get(s));
-            }
-        } catch (MqttException e) {
-            e.printStackTrace();//todo remettre l'ancien
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
 
-    }
-    private void run(AbstractSensor aSensor) {
-        try {
-            Thread t = new Thread(aSensor);
-            t.run();
-        } catch(Exception e) {
-            e.printStackTrace();
-            System.exit(2);
+            execute();
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.exit(-1);
         }
     }
+
+    private void execute() throws Exception {
+        ExecutorService executor = Executors.newFixedThreadPool(mapping.size());
+
+        try {
+            for (;;) {
+                for(AbstractSensor r : mapping.values()) {
+                    r.connect();
+                    Thread.sleep(TIME_TO_WAIT);
+                    executor.execute(r);
+                    Thread.sleep(TIME_TO_WAIT);
+                    r.disconnect();
+                }
+            }
+        } catch (Exception ex) {
+            executor.shutdown();
+            throw new Exception("Executor is down");
+        }
+    }
+
 }
