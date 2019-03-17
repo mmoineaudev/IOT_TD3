@@ -15,8 +15,8 @@
 #define LIGTH_PIN 34
 
 //Les id de connexion
-const char* ssid = "NetworkComesWithFaith";
-const char *password = "0987654321";
+const char* ssid = "freebox_Sev";
+const char *password = "C6F5219ED5";
 
 //la récupération de la température
 OneWire oneWire(TEMP_PIN);
@@ -26,7 +26,7 @@ WiFiClient espClient;           // Wifi
 PubSubClient client(espClient); // MQTT client
 
 /*===== MQTT broker/server and TOPICS ========*/
-const char* mqtt_server = "192.168.43.169"; /* your ips */
+const char* mqtt_server = "192.168.0.38"; /* your ip */
 
 
 /** Commandes shell
@@ -155,20 +155,21 @@ void loop() {
   /*--- Publish Temperature periodically   */
   delay(period);
   float temperature = get_Temperature();
-  int ligth = get_Light();
-  // Convert the value to a char array
+
+  
   char tempString[8];
   dtostrf(temperature, 1, 2, tempString);
-
+  Serial.print("* Published Temperature : "); Serial.println(tempString);
+  client.publish(TOPIC_TEMP, tempString);
+  
+  delay(period);
+  int ligth = get_Light();
   char tempLigth[8];
   dtostrf(ligth, 1, 2, tempLigth);
-  // Serial info
-  Serial.print("* Published Temperature : "); Serial.println(tempString);
+
   Serial.print("* Published Light : "); Serial.println(tempLigth);
-  
-  // MQTT Publish
-  client.publish(TOPIC_TEMP, tempString);
   client.publish(TOPIC_LIGHT, tempLigth);
+  
 
   client.loop(); // Process MQTT ... une fois par loop()
 }
