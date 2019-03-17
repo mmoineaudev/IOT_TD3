@@ -15,8 +15,8 @@
 #define LIGTH_PIN 34
 
 //Les id de connexion
-const char* ssid = "NetworkComesWithFaith";
-const char *password = "0987654321";
+const char* ssid = "freebox_Sev";
+const char *password = "C6F5219ED5";
 
 //la récupération de la température
 OneWire oneWire(TEMP_PIN);
@@ -26,14 +26,22 @@ WiFiClient espClient;           // Wifi
 PubSubClient client(espClient); // MQTT client
 
 /*===== MQTT broker/server and TOPICS ========*/
-const char* mqtt_server = "192.168.1.113"; /* "broker.shiftr.io"; */
+const char* mqtt_server = "192.168.0.38"; /* your ip */
 
-#define TOPIC_TEMP "miage1/menez/sensors/temp"
-#define TOPIC_LED  "miage1/menez/sensors/led"
 
-/*============= GPIO ======================*/
-float temperature = 0;
-float light = 0;
+/** Commandes shell
+sudo service mosquitto stop; sudo service mosquitto start
+xterm -hold -e "mosquitto_sub -h localhost -t miage1/menez/sensors/temp" &
+xterm -hold -e "mosquitto_sub -h localhost -t miage1/menez/sensors/led" &
+xterm -hold -e "mosquitto_sub -h localhost -v -t \$SYS/#" &
+
+
+mosquitto_pub -h localhost -p 1883 -t channel -m "Le premier message"
+
+**/
+#define TOPIC_TEMP "miage1/menez/sensors/temp" 
+#define TOPIC_LED  "miage1/menez/sensors/led" 
+#define TOPIC_LIGHT  "miage1/menez/sensors/light" 
 
 /*================ WIFI =======================*/
 void print_connection_status() {
@@ -130,25 +138,38 @@ float get_Temperature() {
   tempSensor.requestTemperaturesByIndex(0);
   return tempSensor.getTempCByIndex(0);
 }
+float get_Light() {
+  int value =  analogRead(LIGTH_PIN);
+  Serial.print("get_Light"); Serial.println(value);
+  return value;
+}
 
 /*================= LOOP ======================*/
 void loop() {
   int32_t period = 5000; // 5 sec
   /*--- subscribe to TOPIC_LED if not yet ! */
   if (!client.connected()) {
-    mqtt_mysubscribe((char *)(TOPIC_LED));
+    mqtt_mysubscribe((char *)(TOPIC_LED));//on communique sur le canal led  
   }
 
   /*--- Publish Temperature periodically   */
   delay(period);
-  temperature = get_Temperature();
-  // Convert the value to a char array
+  float temperature = get_Temperature();
+
+  
   char tempString[8];
   dtostrf(temperature, 1, 2, tempString);
-  // Serial info
-  Serial.print("Published Temperature : "); Serial.println(tempString);
-  // MQTT Publish
+  Serial.print("* Published Temperature : "); Serial.println(tempString);
   client.publish(TOPIC_TEMP, tempString);
+  
+  delay(period);
+  int ligth = get_Light();
+  char tempLigth[8];
+  dtostrf(ligth, 1, 2, tempLigth);
+
+  Serial.print("* Published Light : "); Serial.println(tempLigth);
+  client.publish(TOPIC_LIGHT, tempLigth);
+  
 
   client.loop(); // Process MQTT ... une fois par loop()
 }
