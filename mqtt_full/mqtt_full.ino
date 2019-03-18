@@ -159,7 +159,7 @@ void loop() {
   
   char tempString[8];
   dtostrf(temperature, 1, 2, tempString);
-  //Serial.print("* Published Temperature : "); Serial.println(tempString);
+  Serial.print("* Published Temperature : "); Serial.print(tempString);
   client.publish(TOPIC_TEMP, tempString);
   
   delay(period);
@@ -167,9 +167,10 @@ void loop() {
   char tempLigth[8];
   dtostrf(ligth, 1, 2, tempLigth);
 
-  //Serial.print("* Published Light : "); Serial.println(tempLigth);
+  Serial.print("* Published Light : "); Serial.print(tempLigth);
   client.publish(TOPIC_LIGHT, tempLigth);
-  
+
+  Serial.println();
 
   client.loop(); // Process MQTT ... une fois par loop()
 }

@@ -15,19 +15,15 @@ public class AbstractSensor implements IMqttMessageListener, Runnable {
     protected MemoryPersistence persistence = new MemoryPersistence();
     //--
     protected MqttClient client;
+    protected PowerSwitch powerSwitch;
 
     public AbstractSensor() throws MqttException, InterruptedException {
         client = null;
+        powerSwitch = null;
     }
 
     public void listen() throws MqttException, InterruptedException {
-        if(client.isConnected()) {
-            System.out.println("listening on "+topic);
 
-        }else{
-            System.out.println("connection to topic error... retrying");
-            connect();
-        }
         Thread.sleep(Sensors.TIME_TO_WAIT);
     }
 
@@ -41,11 +37,10 @@ public class AbstractSensor implements IMqttMessageListener, Runnable {
             client.connect(connOpts);
             client.subscribe(topic, this);
         }catch(Exception e){
-            System.out.println("Error "+e.getMessage()+": retrying to connect to "+this.topic+" : "+e.getCause());
-            connect();
+            System.out.println(e.getClass().getSimpleName()+" "+e.getMessage()+": "+this.topic+" : "+e.getCause());
             return;
         }
-        System.out.println("Connected");
+        System.out.println(topic+ " connected");
 
     }
 
@@ -70,6 +65,18 @@ public class AbstractSensor implements IMqttMessageListener, Runnable {
     }
 
     public void run() {
-        System.out.println(this.getClass().getSimpleName()+ " running...");
+        try {
+            connect();
+            listen();
+            disconnect();
+        } catch (MqttException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addPowerSwitch(PowerSwitch powerSwitch) {
+        this.powerSwitch = powerSwitch;
     }
 }

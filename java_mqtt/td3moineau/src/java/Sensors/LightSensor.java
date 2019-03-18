@@ -21,6 +21,7 @@ public class LightSensor extends AbstractSensor {
     @Override
     public void messageArrived(String s, MqttMessage mqttMessage) {
         super.messageArrived(s, mqttMessage);
+        this.powerSwitch.setEnlightment(mqttMessage.toString());
     }
 
 }
