@@ -31,23 +31,22 @@ public class AbstractSensor implements IMqttMessageListener, Runnable {
         Thread.sleep(Sensors.TIME_TO_WAIT);
     }
 
-    public void connect() throws MqttException, InterruptedException {
-        if(!client.isConnected()) {
-            MqttConnectOptions connOpts = new MqttConnectOptions();
-            connOpts.setAutomaticReconnect(true);
-            connOpts.setCleanSession(true);
-            connOpts.setConnectionTimeout(10);
-            System.out.print("Connecting to broker: " + broker + " on topic " + topic + "... ");
-            try{
-                client.connect(connOpts);
-            }catch(Exception e){
-                System.out.println("retrying to connect to "+this.topic+" in 3 secs : "+e.getMessage());
-                connect();
-                return;
-            }
-            System.out.println("Connected");
+    public void connect() {
+        MqttConnectOptions connOpts = new MqttConnectOptions();
+        connOpts.setAutomaticReconnect(true);
+        connOpts.setCleanSession(true);
+        connOpts.setConnectionTimeout(10);
+        System.out.print("Connecting to broker: " + broker + " on topic " + topic + "... ");
+        try{
+            client.connect(connOpts);
             client.subscribe(topic, this);
+        }catch(Exception e){
+            System.out.println("Error "+e.getMessage()+": retrying to connect to "+this.topic+" : "+e.getCause());
+            connect();
+            return;
         }
+        System.out.println("Connected");
+
     }
 
     //supposed to be called in messageArrived
@@ -71,12 +70,6 @@ public class AbstractSensor implements IMqttMessageListener, Runnable {
     }
 
     public void run() {
-        System.out.println(this.getClass().getSimpleName()+ "running !");
-        try {
-            listen();
-        }catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-
+        System.out.println(this.getClass().getSimpleName()+ " running...");
     }
 }

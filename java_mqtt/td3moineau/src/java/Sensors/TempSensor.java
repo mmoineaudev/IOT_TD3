@@ -13,10 +13,6 @@ public class TempSensor extends AbstractSensor {
 
     }
 
-    @Override
-    public void connect() throws MqttException, InterruptedException {
-        super.connect();
-    }
 
     @Override
     public void publish() throws MqttException {
