@@ -1,15 +1,14 @@
 package Sensors;
 
-import org.eclipse.paho.client.mqttv3.MqttException;
-import sun.management.Sensor;
-
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Sensors{
-    public static final long TIME_TO_WAIT = 1000;
+    public static final long TIME_TO_WAIT = 500;
     private HashMap<String, AbstractSensor> mapping;
+    public static HashMap<String, Double> values = new HashMap<>();
+
     private boolean connected = false;
     public Sensors() {
         this.mapping = new HashMap<String, AbstractSensor>();
@@ -24,6 +23,8 @@ public class Sensors{
             this.addSensor("TEMP", new TempSensor());
             this.addSensor("LIGHT", new LightSensor());
 
+            for(String a : mapping.keySet()) mapping.get(a).connect();
+
             execute();
 
         } catch (Exception e) {
@@ -34,18 +35,19 @@ public class Sensors{
 
     private void execute() throws Exception {
         ExecutorService executor = Executors.newFixedThreadPool(mapping.size());
-
+        PowerSwitch p = new PowerSwitch();
         try {
+            p.connect();
             for (;;) {
+
                 for(AbstractSensor r : mapping.values()) {
-                    r.connect();
-                    Thread.sleep(TIME_TO_WAIT);
                     executor.execute(r);
-                    Thread.sleep(TIME_TO_WAIT);
-                    r.disconnect();
+                    p.react();
+
                 }
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
             executor.shutdown();
             throw new Exception("Executor is down");
         }

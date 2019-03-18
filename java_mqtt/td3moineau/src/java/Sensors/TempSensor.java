@@ -26,5 +26,6 @@ public class TempSensor extends AbstractSensor {
     @Override
     public void messageArrived(String s, MqttMessage mqttMessage) {
         super.messageArrived(s, mqttMessage);
+
     }
 }

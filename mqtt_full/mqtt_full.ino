@@ -140,7 +140,7 @@ float get_Temperature() {
 }
 float get_Light() {
   int value =  analogRead(LIGTH_PIN);
-  Serial.print("get_Light"); Serial.println(value);
+  //Serial.print("get_Light"); Serial.println(value);
   return value;
 }
 
@@ -159,7 +159,7 @@ void loop() {
   
   char tempString[8];
   dtostrf(temperature, 1, 2, tempString);
-  Serial.print("* Published Temperature : "); Serial.println(tempString);
+  //Serial.print("* Published Temperature : "); Serial.println(tempString);
   client.publish(TOPIC_TEMP, tempString);
   
   delay(period);
@@ -167,7 +167,7 @@ void loop() {
   char tempLigth[8];
   dtostrf(ligth, 1, 2, tempLigth);
 
-  Serial.print("* Published Light : "); Serial.println(tempLigth);
+  //Serial.print("* Published Light : "); Serial.println(tempLigth);
   client.publish(TOPIC_LIGHT, tempLigth);
   
 

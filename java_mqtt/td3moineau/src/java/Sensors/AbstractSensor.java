@@ -21,14 +21,16 @@ public class AbstractSensor implements IMqttMessageListener, Runnable {
     }
 
     public void listen() throws MqttException, InterruptedException {
+
         if(client.isConnected()) {
+            client.subscribe(topic, this);
+            client.setTimeToWait(Sensors.TIME_TO_WAIT);
             System.out.println("listening on "+topic);
 
         }else{
             System.out.println("connection to topic error... retrying");
             connect();
         }
-        Thread.sleep(Sensors.TIME_TO_WAIT);
     }
 
     public void connect() throws MqttException, InterruptedException {
@@ -41,12 +43,9 @@ public class AbstractSensor implements IMqttMessageListener, Runnable {
             try{
                 client.connect(connOpts);
             }catch(Exception e){
-                System.out.println("retrying to connect to "+this.topic+" in 3 secs : "+e.getMessage());
-                connect();
-                return;
+                e.printStackTrace();
             }
-            System.out.println("Connected");
-            client.subscribe(topic, this);
+
         }
     }
 
@@ -57,26 +56,33 @@ public class AbstractSensor implements IMqttMessageListener, Runnable {
         messageMqtt.setQos(qos);
         messageMqtt.setRetained(true);
         client.publish(topic, messageMqtt);
-        System.out.println("Message published");
     }
 
     public void disconnect() throws MqttException {
+        System.out.println("disconnect");
         client.disconnect();
-        System.out.println("Disconnected");
     }
 
 
     public void messageArrived(String s, MqttMessage mqttMessage){
         System.out.println("messageArrived on topic [\n"+this.topic+" : "+mqttMessage.toString()+"\n]");
+        try{
+            double value = Double.parseDouble(mqttMessage.toString());
+            setValue(value);
+        }catch (NumberFormatException e){
+
+        }
     }
 
     public void run() {
-        System.out.println(this.getClass().getSimpleName()+ "running !");
         try {
             listen();
         }catch (Exception e) {
             System.out.println(e.getMessage());
         }
-
     }
+    protected void setValue(double value){
+        Sensors.values.put(topic, value);
+    }
+
 }
