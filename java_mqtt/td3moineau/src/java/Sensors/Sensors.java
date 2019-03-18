@@ -14,6 +14,9 @@ public class Sensors{
         mapping.put(ID, sensor);
     }
 
+    /**
+     * point d'entrée
+     */
     public void run(){
         try {
             this.addSensor("TEMP", new TempSensor());
@@ -27,6 +30,10 @@ public class Sensors{
         }
     }
 
+    /**
+     * BugFix : les données d'un seul capteur remontaient
+     * @throws Exception
+     */
     private void execute() throws Exception {
         ExecutorService executor = Executors.newFixedThreadPool(mapping.size());
         PowerSwitch powerSwitch = new PowerSwitch();
