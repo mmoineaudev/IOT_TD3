@@ -13,10 +13,6 @@ public class TempSensor extends AbstractSensor {
 
     }
 
-    @Override
-    public void connect() throws MqttException, InterruptedException {
-        super.connect();
-    }
 
     @Override
     public void publish() throws MqttException {
@@ -26,5 +22,7 @@ public class TempSensor extends AbstractSensor {
     @Override
     public void messageArrived(String s, MqttMessage mqttMessage) {
         super.messageArrived(s, mqttMessage);
+        this.powerSwitch.setTemperature(mqttMessage.toString());
+
     }
 }

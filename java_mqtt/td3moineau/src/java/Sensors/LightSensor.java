@@ -14,11 +14,6 @@ public class LightSensor extends AbstractSensor {
     }
 
     @Override
-    public void connect() throws MqttException, InterruptedException {
-        super.connect();
-    }
-
-    @Override
     public void publish() throws MqttException {
         //super.publish();
     }
@@ -26,6 +21,7 @@ public class LightSensor extends AbstractSensor {
     @Override
     public void messageArrived(String s, MqttMessage mqttMessage) {
         super.messageArrived(s, mqttMessage);
+        this.powerSwitch.setEnlightment(mqttMessage.toString());
     }
 
 }

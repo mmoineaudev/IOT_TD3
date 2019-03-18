@@ -15,8 +15,8 @@
 #define LIGTH_PIN 34
 
 //Les id de connexion
-const char* ssid = "freebox_Sev";
-const char *password = "C6F5219ED5";
+const char* ssid = "DESKTOP-ARDPD7O 2351";
+const char *password = "36H257v@";
 
 //la récupération de la température
 OneWire oneWire(TEMP_PIN);
@@ -26,7 +26,7 @@ WiFiClient espClient;           // Wifi
 PubSubClient client(espClient); // MQTT client
 
 /*===== MQTT broker/server and TOPICS ========*/
-const char* mqtt_server = "192.168.0.38"; /* your ip */
+const char* mqtt_server = "192.168.137.41"; /* your ip */
 
 
 /** Commandes shell
@@ -99,7 +99,7 @@ void mqtt_pubcallback(char* topic, byte* message,
   // you check if the message is either "on" or "off".
   // Changes the output state according to the message
   if (String(topic) == TOPIC_LED) {
-    Serial.print("Changing output to ");
+    Serial.print("Received : ");Serial.print(messageTemp);
     if (messageTemp == "on") {
       Serial.println("on");
       set_LED(HIGH);
@@ -140,7 +140,7 @@ float get_Temperature() {
 }
 float get_Light() {
   int value =  analogRead(LIGTH_PIN);
-  Serial.print("get_Light"); Serial.println(value);
+  //Serial.print("get_Light"); Serial.println(value);
   return value;
 }
 
@@ -159,7 +159,7 @@ void loop() {
   
   char tempString[8];
   dtostrf(temperature, 1, 2, tempString);
-  Serial.print("* Published Temperature : "); Serial.println(tempString);
+  Serial.print("* Published Temperature : "); Serial.print(tempString);
   client.publish(TOPIC_TEMP, tempString);
   
   delay(period);
@@ -167,9 +167,10 @@ void loop() {
   char tempLigth[8];
   dtostrf(ligth, 1, 2, tempLigth);
 
-  Serial.print("* Published Light : "); Serial.println(tempLigth);
+  Serial.print("* Published Light : "); Serial.print(tempLigth);
   client.publish(TOPIC_LIGHT, tempLigth);
-  
+
+  Serial.println();
 
   client.loop(); // Process MQTT ... une fois par loop()
 }

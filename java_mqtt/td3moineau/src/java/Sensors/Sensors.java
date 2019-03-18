@@ -34,21 +34,21 @@ public class Sensors{
 
     private void execute() throws Exception {
         ExecutorService executor = Executors.newFixedThreadPool(mapping.size());
+        PowerSwitch powerSwitch = new PowerSwitch();
+        for (;;) {
+            for(AbstractSensor r : mapping.values()) {
+                try {
 
-        try {
-            for (;;) {
-                for(AbstractSensor r : mapping.values()) {
-                    r.connect();
-                    Thread.sleep(TIME_TO_WAIT);
+                    r.addPowerSwitch(powerSwitch);
                     executor.execute(r);
-                    Thread.sleep(TIME_TO_WAIT);
-                    r.disconnect();
+                    executor.execute(powerSwitch);
+                } catch (Exception ex) {
+                    //executor.shutdown();
+                    throw new Exception("Executor is down : \n"+ ex.getMessage()+"\n"+ ex.getCause());
                 }
             }
-        } catch (Exception ex) {
-            executor.shutdown();
-            throw new Exception("Executor is down");
         }
+
     }
 
 }
