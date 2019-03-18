@@ -99,7 +99,7 @@ void mqtt_pubcallback(char* topic, byte* message,
   // you check if the message is either "on" or "off".
   // Changes the output state according to the message
   if (String(topic) == TOPIC_LED) {
-    Serial.print("Changing output to ");
+    Serial.print("Received : ");Serial.print(messageTemp);
     if (messageTemp == "on") {
       Serial.println("on");
       set_LED(HIGH);
