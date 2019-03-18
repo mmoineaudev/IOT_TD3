@@ -4,7 +4,6 @@ import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 
-//permet d'agir sur un sensor via mqtt
 public class AbstractSensor implements IMqttMessageListener, Runnable {
     //--
     protected String topic        = "miage1/menez/sensors/";
@@ -15,18 +14,36 @@ public class AbstractSensor implements IMqttMessageListener, Runnable {
     protected MemoryPersistence persistence = new MemoryPersistence();
     //--
     protected MqttClient client;
-    protected PowerSwitch powerSwitch;
 
+    /**
+     * Decorator pour agir sur la led "chauffage"
+     */
+    protected PowerSwitch powerSwitch;
+    protected void addPowerSwitch(PowerSwitch powerSwitch) {
+        this.powerSwitch = powerSwitch;
+    }
+
+    /**
+     * On instancie à null pour assurer que ca soit fait dans les classes filles
+     * @throws MqttException
+     * @throws InterruptedException
+     */
     public AbstractSensor() throws MqttException, InterruptedException {
         client = null;
         powerSwitch = null;
     }
 
-    public void listen() throws MqttException, InterruptedException {
-
+    /**
+     * Attente qu'un message se poste sur le topic
+     * @throws InterruptedException
+     */
+    public void listen() throws InterruptedException {
         Thread.sleep(Sensors.TIME_TO_WAIT);
     }
 
+    /**
+     * Connexion et abonnement
+     */
     public void connect() {
         MqttConnectOptions connOpts = new MqttConnectOptions();
         connOpts.setAutomaticReconnect(true);
@@ -44,7 +61,10 @@ public class AbstractSensor implements IMqttMessageListener, Runnable {
 
     }
 
-    //supposed to be called in messageArrived
+    /**
+     * Emission d'un message
+     * @throws MqttException
+     */
     public void publish() throws MqttException {
         System.out.print("Publishing message: "+content+" to topic "+topic+"... ");
         MqttMessage messageMqtt = new MqttMessage(content.getBytes());
@@ -54,16 +74,18 @@ public class AbstractSensor implements IMqttMessageListener, Runnable {
         System.out.println("Message published");
     }
 
-    public void disconnect() throws MqttException {
-        client.disconnect();
-        System.out.println("Disconnected");
-    }
-
-
+    /**
+     * Callback de subscribe
+     * @param s le topic
+     * @param mqttMessage le message
+     */
     public void messageArrived(String s, MqttMessage mqttMessage){
         System.out.println("messageArrived on topic [\n"+this.topic+" : "+mqttMessage.toString()+"\n]");
     }
 
+    /**
+     * Interface callable : rend executable ce bout de code dans un thread par un executor service
+     */
     public void run() {
         try {
             connect();
@@ -76,7 +98,9 @@ public class AbstractSensor implements IMqttMessageListener, Runnable {
         }
     }
 
-    public void addPowerSwitch(PowerSwitch powerSwitch) {
-        this.powerSwitch = powerSwitch;
+    public void disconnect() throws MqttException {
+        client.disconnect();
+        System.out.println("Disconnected");
     }
+
 }
