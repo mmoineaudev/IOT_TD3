@@ -5,6 +5,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 
 public class AbstractSensor implements IMqttMessageListener, Runnable {
+    public static final long TIME_TO_WAIT = 2000;
     //--
     protected String topic        = "miage1/menez/sensors/";
     protected String content      = "AbstractSensoris not meant to be used";
@@ -38,7 +39,7 @@ public class AbstractSensor implements IMqttMessageListener, Runnable {
      * @throws InterruptedException
      */
     public void listen() throws InterruptedException {
-        Thread.sleep(Sensors.TIME_TO_WAIT);
+        Thread.sleep(TIME_TO_WAIT);
     }
 
     /**
@@ -91,15 +92,18 @@ public class AbstractSensor implements IMqttMessageListener, Runnable {
             connect();
             listen();
             disconnect();
-        } catch (MqttException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        }catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    public void disconnect() throws MqttException {
-        client.disconnect();
+    public void disconnect(){
+        try {
+            client.disconnect();
+        } catch (MqttException e) {
+            System.out.println("disconnection failed :"+e.getMessage());
+            return;
+        }
         System.out.println("Disconnected");
     }
 

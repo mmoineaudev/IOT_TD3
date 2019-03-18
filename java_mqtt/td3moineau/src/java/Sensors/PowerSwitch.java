@@ -1,6 +1,5 @@
 package Sensors;
 
-import Sensors.AbstractSensor;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -75,11 +74,13 @@ public class PowerSwitch extends AbstractSensor {
     public void run(){
         try {
             connect();
-            Thread.sleep(Sensors.TIME_TO_WAIT);
+            Thread.sleep(AbstractSensor.TIME_TO_WAIT);
             react();
-            Thread.sleep(Sensors.TIME_TO_WAIT);
+            Thread.sleep(AbstractSensor.TIME_TO_WAIT);
         } catch (MqttException | InterruptedException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            System.out.print(this.getClass().getSimpleName()+" : "+e.getMessage()+"...");
+            //trop fréquent, l'api future aurait sans doute permi de le faire mieux
         }
     }
 

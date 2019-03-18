@@ -1,16 +1,11 @@
 package Sensors;
 
-import org.eclipse.paho.client.mqttv3.MqttException;
-import sun.management.Sensor;
-
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Sensors{
-    public static final long TIME_TO_WAIT = 1000;
     private HashMap<String, AbstractSensor> mapping;
-    private boolean connected = false;
     public Sensors() {
         this.mapping = new HashMap<String, AbstractSensor>();
     }

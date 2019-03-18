@@ -12,25 +12,37 @@ Si la la lumière est allumée, on peut déduire que la pière est occupée, le 
 
 ## Prérequis
 
-Le fichier .ino contenant le code exécuté sur le microcontrôleur doit être paramétré.
+### Le fichier .ino contenant le code exécuté sur le microcontrôleur doit être paramétré
 
 Il faudra :
 
-* Ajouter des identifiants de connection au réseau wifi sur lequel se trouve le broker.
+- Ajouter des identifiants de connection au réseau wifi sur lequel se trouve le broker.
 
-* Ajouter l'adresse ip du serveur 
+```
+//Les id de connexion
+const char* ssid = "DESKTOP-ARDPD7O 2351";
+const char *password = "36H257v@";
+```
+
+- Ajouter l'adresse ip du serveur
+
+```
+/*===== MQTT broker/server and TOPICS ========*/
+const char* mqtt_server = "192.168.137.41"; /* your ip */
+```
+
+### Mosquitto
 
 Afin de démarrer le broker sur une machine linux, il faut executer all.sh, qui contient les instructions nécessaires à l'effacement des anciens messages, le redemarrage du service mosquitto, la publication des topic.
 
 ## Serveur java
 
-le serveur java se lance avec maven par la commande 
+le serveur java se lance avec maven par la commande
 
 ```
 
 mvn exec:java
 
 ```
+
 Maven est disponible pour les machines linux dans la plupart des gestionnaires de paquets.
-
-
