@@ -52,5 +52,8 @@ public class Sensors{
         }
 
     }
-
+    public static void main(String[] args){
+        Sensors sensors = new Sensors();
+        sensors.run();
+    }
 }
